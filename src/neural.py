@@ -1,6 +1,7 @@
 from typing import Callable
 import numpy as np
 from . import basic_algos as alg
+from .encoders import OneHotEncoder
 
 class Neural:
     def __init__(self, input_size, hidden1_size, hidden2_size, output_size):
@@ -92,11 +93,14 @@ class Neural:
             z3 = np.dot(a2, self.W3) + self.b3
             a3 = alg.softmax(z3)
 
-            # predictions = np.argmax(a3, axis=1)
-            # train_accuracy = np.mean(predictions == y_train)
+            # TODO - remove hack, OneHotEncoder decoding is hardcoded here
+            # (the input is OneHot encoded, but the predictions are generated as labels)
+            y_train_decoded = OneHotEncoder.decode(y_train)
+            predictions = np.argmax(a3, axis=1)
+            train_accuracy = np.mean(predictions == y_train_decoded)
 
-            # # if progress_func is not None and isinstance(progress_func, Callable):
-            #     progress_func(epoch, train_accuracy)
+            if progress_func is not None and isinstance(progress_func, Callable):
+                progress_func(epoch, train_accuracy)
 
 
     def forward_pass(self, X):

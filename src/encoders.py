@@ -32,3 +32,16 @@ class OneHotEncoder:
         #    one_hot[i, num] = 1
         one_hot = np.eye(num_labels)[y]
         return one_hot
+    
+    @staticmethod
+    def decode(y_one_hot):
+        if not isinstance(y_one_hot, np.ndarray) or y_one_hot.ndim != 2:
+            raise ValueError("Expected a 2 dimensional array")
+        
+        row_num = y_one_hot.shape[0]
+        result = np.zeros(row_num)
+        for i in range(0, row_num):
+            row = y_one_hot[i,:]
+            result[i] = np.argmax(row)
+
+        return result
