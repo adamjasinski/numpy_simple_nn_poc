@@ -10,6 +10,7 @@ class Neural:
         self.hidden1_size = hidden1_size
         self.hidden2_size = hidden2_size
         self.output_size = output_size
+        self.train_accuracy = 0.0
 
         self.W1, self.W2, self.W3, self.b1, self.b2, self.b3 = Neural.initialize_wb(input_size, hidden1_size, hidden2_size, output_size)
 
@@ -86,21 +87,16 @@ class Neural:
                 self.b3 -= learning_rate * db3
 
             # Calculate accuracy on the training set
-            z1 = np.dot(X_train, self.W1) + self.b1
-            a1 = alg.sigmoid(z1)
-            z2 = np.dot(a1, self.W2) + self.b2
-            a2 = alg.sigmoid(z2)
-            z3 = np.dot(a2, self.W3) + self.b3
-            a3 = alg.softmax(z3)
+            a1, a2, a3 = self.forward_pass(X_train)
 
             # TODO - remove hack, OneHotEncoder decoding is hardcoded here
             # (the input is OneHot encoded, but the predictions are generated as labels)
             y_train_decoded = OneHotEncoder.decode(y_train)
             predictions = np.argmax(a3, axis=1)
-            train_accuracy = np.mean(predictions == y_train_decoded)
+            self.train_accuracy = np.mean(predictions == y_train_decoded)
 
             if progress_func is not None and isinstance(progress_func, Callable):
-                progress_func(epoch, train_accuracy)
+                progress_func(epoch, self.train_accuracy)
 
 
     def forward_pass(self, X):
@@ -114,15 +110,10 @@ class Neural:
         return a1, a2, a3
 
     def score(self, X, y):
-        # Calculate accuracy on the training set
-        _, _, a3 = self.forward_pass(X)
-
-        predictions = np.argmax(a3, axis=1)
-        accuracy = np.mean(predictions == y)
-        return accuracy
+        return self.train_accuracy
 
     def predict(self, X):
-        # Calculate accuracy on the test set
+        # TODO - possibly this forward pass is unnecessary and we can re-use the last known a3
         _, _, a3 = self.forward_pass(X)
 
         predictions = np.argmax(a3, axis=1)
