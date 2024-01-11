@@ -7,5 +7,8 @@ Python 3.11
 # Setup
 Run `pip install -r requirements.txt`
 
-# Running
+# Running the notebook
 Run `poc.ipynb` Jupyter notebook, e.g. in VS Code, PyCharm, or from the command line (`jupyter notebook`)
+
+# Running unit tests
+`python -m pytest tests/*`
