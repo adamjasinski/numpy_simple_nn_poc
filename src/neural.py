@@ -10,6 +10,7 @@ class Neural:
         self.hidden1_size = hidden1_size
         self.hidden2_size = hidden2_size
         self.output_size = output_size
+        self.a3 = None
         self.train_accuracy = 0.0
 
         self.W1, self.W2, self.W3, self.b1, self.b2, self.b3 = Neural.initialize_wb(input_size, hidden1_size, hidden2_size, output_size)
@@ -87,10 +88,11 @@ class Neural:
                 self.b3 -= learning_rate * db3
 
             # Calculate accuracy on the training set
-            a1, a2, a3 = self.forward_pass(X_train)
+            _, _, a3 = self.forward_pass(X_train)
+            self.a3 = a3
 
-            # TODO - remove hack, OneHotEncoder decoding is hardcoded here
-            # (the input is OneHot encoded, but the predictions are generated as labels)
+            # TODO - hack, OneHotEncoder decoding is hardcoded here
+            # (the input is OneHot encoded as sparse matrix, but the generated predictions are generated as labels)
             y_train_decoded = OneHotEncoder.decode(y_train)
             predictions = np.argmax(a3, axis=1)
             self.train_accuracy = np.mean(predictions == y_train_decoded)
@@ -113,9 +115,9 @@ class Neural:
         return self.train_accuracy
 
     def predict(self, X):
-        # TODO - possibly this forward pass is unnecessary and we can re-use the last known a3
-        _, _, a3 = self.forward_pass(X)
+        if self.a3 is None:
+            raise Exception("The model has not been trained yet. Please run the train method.")
 
-        predictions = np.argmax(a3, axis=1)
+        predictions = np.argmax(self.a3, axis=1)
         return predictions
     
