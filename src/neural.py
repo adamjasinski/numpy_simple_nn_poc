@@ -5,7 +5,6 @@ from . import basic_algos as alg
 class Neural:
     def __init__(self, input_size, hidden1_size, hidden2_size, output_size):
         """Initialize a neural network"""
-        self._data = None
         self.input_size = input_size
         self.hidden1_size = hidden1_size
         self.hidden2_size = hidden2_size
@@ -64,12 +63,7 @@ class Neural:
                 y_batch = y_train[i:i + batch_size]
 
                 # Forward pass
-                z1 = np.dot(x_batch, self.W1) + self.b1
-                a1 = alg.sigmoid(z1)
-                z2 = np.dot(a1, self.W2) + self.b2
-                a2 = alg.sigmoid(z2)
-                z3 = np.dot(a2, self.W3) +self. b3
-                a3 = alg.softmax(z3)
+                a1, a2, a3 = self.forward_pass(x_batch)
 
                 # Backpropagation
                 delta = a3 - y_batch
@@ -101,17 +95,23 @@ class Neural:
             # predictions = np.argmax(a3, axis=1)
             # train_accuracy = np.mean(predictions == y_train)
 
-            # if progress_func is not None and isinstance(progress_func, Callable):
+            # # if progress_func is not None and isinstance(progress_func, Callable):
             #     progress_func(epoch, train_accuracy)
 
-    def score(self, X, y):
-        # Calculate accuracy on the training set
+
+    def forward_pass(self, X):
+        # Forward pass
         z1 = np.dot(X, self.W1) + self.b1
         a1 = alg.sigmoid(z1)
         z2 = np.dot(a1, self.W2) + self.b2
         a2 = alg.sigmoid(z2)
-        z3 = np.dot(a2, self.W3) + self.b3
+        z3 = np.dot(a2, self.W3) +self. b3
         a3 = alg.softmax(z3)
+        return a1, a2, a3
+
+    def score(self, X, y):
+        # Calculate accuracy on the training set
+        _, _, a3 = self.forward_pass(X)
 
         predictions = np.argmax(a3, axis=1)
         accuracy = np.mean(predictions == y)
@@ -119,12 +119,8 @@ class Neural:
 
     def predict(self, X):
         # Calculate accuracy on the test set
-        z1 = np.dot(X, self.W1) + self.b1
-        a1 = alg.sigmoid(z1)
-        z2 = np.dot(a1, self.W2) + self.b2
-        a2 = alg.sigmoid(z2)
-        z3 = np.dot(a2, self.W3) + self.b3
-        a3 = alg.softmax(z3)
+        _, _, a3 = self.forward_pass(X)
+
         predictions = np.argmax(a3, axis=1)
         return predictions
     
