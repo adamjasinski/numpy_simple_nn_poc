@@ -89,13 +89,13 @@ class Neural:
                 self.W3 -= learning_rate * dW3
                 self.b3 -= learning_rate * db3
 
-            # # Calculate accuracy on the training set
-            # z1 = np.dot(X_train, self.W1) + self.b1
-            # a1 = Neural.sigmoid(z1)
-            # z2 = np.dot(a1, self.W2) + self.b2
-            # a2 = Neural.sigmoid(z2)
-            # z3 = np.dot(a2, self.W3) + self.b3
-            # a3 = Neural.softmax(z3)
+            # Calculate accuracy on the training set
+            z1 = np.dot(X_train, self.W1) + self.b1
+            a1 = Neural.sigmoid(z1)
+            z2 = np.dot(a1, self.W2) + self.b2
+            a2 = Neural.sigmoid(z2)
+            z3 = np.dot(a2, self.W3) + self.b3
+            a3 = Neural.softmax(z3)
 
             # predictions = np.argmax(a3, axis=1)
             # train_accuracy = np.mean(predictions == y_train)
