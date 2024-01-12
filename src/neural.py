@@ -13,11 +13,11 @@ class Neural:
         self.a3 = None
         self.train_accuracy = 0.0
 
-        self.W1, self.W2, self.W3, self.b1, self.b2, self.b3 = Neural.initialize_wb(input_size, hidden1_size, hidden2_size, output_size)
+        self.W1, self.W2, self.W3, self.b1, self.b2, self.b3 = Neural._initialize_wb(input_size, hidden1_size, hidden2_size, output_size)
 
 
     @staticmethod
-    def initialize_wb(input_size, hidden1_size, hidden2_size, output_size):
+    def _initialize_wb(input_size, hidden1_size, hidden2_size, output_size):
         """
         Initialize weights and biases for a neural network.
 
@@ -66,7 +66,7 @@ class Neural:
                 y_batch = y_train[i:i + batch_size]
 
                 # Forward pass
-                a1, a2, a3 = self.forward_pass(x_batch)
+                a1, a2, a3 = self._forward_pass(x_batch)
 
                 # Backpropagation
                 delta = a3 - y_batch
@@ -88,20 +88,20 @@ class Neural:
                 self.b3 -= learning_rate * db3
 
             # Calculate accuracy on the training set
-            _, _, a3 = self.forward_pass(X_train)
+            _, _, a3 = self._forward_pass(X_train)
             self.a3 = a3
 
             # TODO - hack, OneHotEncoder decoding is hardcoded here
             # (the input is OneHot encoded as sparse matrix, but the generated predictions are generated as labels)
             y_train_decoded = OneHotEncoder.decode(y_train)
             predictions = np.argmax(a3, axis=1)
-            self.train_accuracy = np.mean(predictions == y_train_decoded)
+            train_accuracy = np.mean(predictions == y_train_decoded)
 
             if progress_func is not None and isinstance(progress_func, Callable):
-                progress_func(epoch, self.train_accuracy)
+                progress_func(epoch, train_accuracy)
 
 
-    def forward_pass(self, X):
+    def _forward_pass(self, X):
         # Forward pass
         z1 = np.dot(X, self.W1) + self.b1
         a1 = alg.sigmoid(z1)
@@ -112,12 +112,35 @@ class Neural:
         return a1, a2, a3
 
     def score(self, X, y):
-        return self.train_accuracy
+        """
+        Return the mean accuracy on the given test data and labels.
+
+        Parameters:
+        - X (numpy.ndarray): Input data
+        - y (numpy.ndarray): Actual targets
+
+        Returns:
+        - accuracy (float)
+        """
+        predictions = self.predict(X)
+        accuracy = np.mean(predictions == y)
+          
+        return accuracy
 
     def predict(self, X):
+        """
+        Make predictions for X
+
+        Parameters:
+        - X (numpy.ndarray): Input data
+
+        Returns:
+        - predictions (numpy.ndarray)
+        """
         if self.a3 is None:
             raise Exception("The model has not been trained yet. Please run the train method.")
 
-        predictions = np.argmax(self.a3, axis=1)
+        _, _, a3 = self._forward_pass(X)
+        predictions = np.argmax(a3, axis=1)
         return predictions
     
